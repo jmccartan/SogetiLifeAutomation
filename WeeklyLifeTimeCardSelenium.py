@@ -1,8 +1,8 @@
 # python selenium 
-# script to enter 40 hours of Sales Support
+# script to enter 40 hours of Sales Support time card
 # scheduled job to run Saturday 7:00am 
 # using headless chrome - no visible browser - runs against the docker container  
-# docker container jmccartan/life-automation-headless
+# docker run --rm -v /volume1/WeeklyPythonScripts:/seleniumdata mccartan/python-selenium-headless-pandas python3 -u ./[name of python script].py
 
 from secrets import *
 from selenium import webdriver
@@ -18,7 +18,6 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
 
 LifeURL = "https://life.us.sogeti.com/"
 
@@ -48,18 +47,11 @@ try:
     players_ele = browser.find_element_by_link_text("Sogeti Time and Expenses").click()
     #print(players_ele)
     search_ele = browser.find_element_by_id("N48").click()
-
     search_ele = browser.find_element_by_id("Hxccreatetcbutton").click()
-
     browser.find_element_by_xpath("//select[@name='TemplateList']/option[text()=' -   40 of Sales Support']").click()
-
     browser.find_element_by_xpath("//button[normalize-space()='Apply Template']").click()
-
     browser.find_element_by_xpath("//button[normalize-space()='Continue']").click()
-
     browser.find_element_by_xpath("//button[normalize-space()='Submit']").click()
-
-
     emailText = "Time card submission succeeded.  40 hours entered for Sales Support for Week - completed"
     emailSubj = "Completed Weekly Timecard"
 except:
@@ -92,6 +84,3 @@ with smtplib.SMTP(smtp_server, port) as server:
     server.ehlo()  # Can be omitted
     server.login(O365_email_user, O365_email_pwd)
     server.send_message(message)
-    #server.sendmail(sender_email, receiver_email, message)
-
-

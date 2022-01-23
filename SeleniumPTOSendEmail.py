@@ -1,8 +1,8 @@
 # python selenium
 # extract Saturday next to Saturday last from PTO list and save to htm page
 # typically runs Thursday early am 
-# docker container jmccartan/life-automation-headless
-
+# docker container jmccartan/life-automation-headless on hub.docker.com
+# docker run --rm -v /volume1/WeeklyPythonScripts:/seleniumdata mccartan/python-selenium-headless-pandas python3 -u ./[name of python script].py
 
 from secrets import *
 from pandas.io import html
@@ -33,7 +33,6 @@ options.add_argument('headless') #declare it as headless in your code
 options.add_argument('no-sandbox') #it run as root
 browser = webdriver.Chrome(chrome_options=options)
 
-# browser = webdriver.Chrome()
 browser.get(LifeURL)
 
 delay = 3  # seconds
@@ -88,19 +87,14 @@ print(pto_html_text)
 
 df = pd.read_html(str(pto_html_text))[0] 
 
-# remove columns - starting at 0 - count
+# remove columns - starting at 0 - count - to sanitize email to all - remove comments
 df.drop(df.columns[[0, 6, 8, 9, 10, 11, 12, 13, 14, 15]],axis=1, inplace=True)
 
-
 pto_html_text = df.to_html(classes = 'table table-striped')
-#pto_html_text = df 
-
 
 # send email
 port = 587  # For starttls
 smtp_server = "smtp.office365.com"
-
-
 sender_email = O365_email_user
 receiver_email = PTO_dist_list
 message = MIMEMultipart("alternative")

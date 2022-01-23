@@ -1,7 +1,6 @@
 # Project Dashboard 
-
-# python selenium 
 # this one scheduled on windows machine for saturday morning 7am
+# docker run --rm -v /volume1/WeeklyPythonScripts:/seleniumdata mccartan/python-selenium-headless-pandas python3 -u ./[name of python script].py
 
 from secrets import *
 from selenium import webdriver
@@ -31,13 +30,13 @@ import xlsxwriter
 LifeURL = "https://life.us.sogeti.com/"
 
 options = webdriver.ChromeOptions()
-options.add_argument('headless') #declare it as headless in your code
-options.add_argument('no-sandbox') #it run as root
+options.add_argument('headless') 
+options.add_argument('no-sandbox') 
 browser = webdriver.Chrome(chrome_options=options)
 
 browser.get(LifeURL)
 
-
+# life sometimes takes a bit to load - have a delay to wait for element on page 
 delay = 30 # seconds
 try:
     myElem = WebDriverWait(browser, delay).until(EC.presence_of_element_located((By.ID, 'unamebean')))
@@ -93,9 +92,6 @@ df_NE = table_nebraska[0]
 df_NE[cols] = df_NE[cols].replace({'\$': '', ',': ''}, regex=True).astype(float)
 
 
-
-
-
 ExcelFileName = "IA NE Project Dashboard "  + str(ProjEndDate) + ".xlsx"
 IASheetname = "Iowa " + str(ProjEndDate)
 NESheetname = "Nebraska " + str(ProjEndDate)
@@ -109,32 +105,14 @@ IASheet = DashboardWriter.sheets[IASheetname]
 NESheet = DashboardWriter.sheets[NESheetname]
 
 
-# with pd.ExcelWriter('IA NE Dashboard.xlsx') as writer:
-#     df_IA.to_excel(writer, sheet_name='Iowa',engine="xlsxwriter")
-#     df_NE.to_excel(writer, sheet_name='Nebraska',engine="xlsxwriter")
-    
-
-# Adding simple number format. 
+# Adding simple number format - keeping in as an example 
 #fmt_number = thisWorkbook.add_format({ “num_format” : “0” })
 # Adding currency format
 fmt_currency = thisWorkbook.add_format({ 'num_format' : '$#,##0.00' ,'bold' :False })
 fmt_center = thisWorkbook.add_format({ 'align' : 'center'})
 
-# Adding percentage format.
-#fmt_rate = thisWorkbook.add_format({
-# “num_format” : “%0.0” , “bold” : False
-#})
-# Adding formats for header row.
-# fmt_header = thisWorkbook.add_format({
-#  ‘bold’: True,
-#  ‘text_wrap’: True,
-#  ‘valign’: ‘top’,
-#  ‘fg_color’: ‘#5DADE2’,
-#  ‘font_color’: ‘#FFFFFF’,
-#  ‘border’: 1})
-# #Setting the zoom
 
-
+# yes this should be done by iterating over a collection rather than repeating :) 
 IASheet.set_column("N:O", 10, fmt_currency)
 NESheet.set_column("N:O", 10, fmt_currency)
 
@@ -156,47 +134,19 @@ NESheet.set_column("U:U", 10, fmt_center)
 IASheet.set_column("X:X", 10, fmt_center)
 NESheet.set_column("X:X", 10, fmt_center)
 
-
-#clear garbage from screeen scrape 
+#clear garbage from screen scrape 
 IASheet.write('B1', ' ')
 NESheet.write('B1', ' ')
-
-
-
 
 DashboardWriter.save()
 print('xls saved... starting email')
 
-
-
-
-
-
-#df[0].to_excel('test1.xls',index=False, header=False)
-
-#print(df[0].to_json(orient='records'))
-
-
-
-
-
-
-
-
 emailText = tableIA + '\n\n\n' + tableNE
-
-
-
-# except:
-#     # send fail email
-#     emailSubj = "Failed to retrieve dashboard"
-#     emailText = "Weekly Project Dashboard failed"
 
 browser.close()
 
 emailSubj = "IA NE Project Dashboard " + str(ProjEndDate)
 
-# send email - must be on vpn for this to work 
 port = 587  # For starttls
 smtp_server = "smtp.office365.com"
 
@@ -227,6 +177,3 @@ with smtplib.SMTP(smtp_server, port) as server:
     server.ehlo()  # Can be omitted
     server.login(O365_email_user, O365_email_pwd)
     server.send_message(message)
-    #server.sendmail(sender_email, receiver_email, message)
-
-
